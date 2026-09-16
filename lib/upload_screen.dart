@@ -18,8 +18,8 @@ class _UploadScreenState extends State<UploadScreen> {
   bool _isUploading = false;
 
   // ⚠️ ЗАМЕНИ НА СВОИ ДАННЫЕ
-  final String _login = 'твой_логин@mail.ru';
-  final String _appPassword = 'ТОТ_СПЕЦИАЛЬНЫЙ_ПАРОЛЬ';
+  final String _login = 'ali.ayder@mail.ru';
+  final String _appPassword = '6CCcaHyBI0bge32ruPbh';
 
   Future<void> _pickVideo() async {
     final picker = ImagePicker();
