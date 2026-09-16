@@ -19,7 +19,7 @@ class _UploadScreenState extends State<UploadScreen> {
 
   // ⚠️ ЗАМЕНИ НА СВОИ ДАННЫЕ
   final String _login = 'ali.ayder@mail.ru';
-  final String _appPassword = '6CCcaHyBI0bge32ruPbh ';
+  final String _appPassword = 'lkVyxPEoHkBfWv3WrP5q';
 
   Future<void> _pickVideo() async {
     final picker = ImagePicker();
