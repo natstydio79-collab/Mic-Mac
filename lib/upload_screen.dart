@@ -61,7 +61,7 @@ class _UploadScreenState extends State<UploadScreen> {
 
       // 2. Подключаемся к WebDAV (синтаксис для версии 1.0.2)
       final client = WebdavClient(
-        url: 'https://webdav.cloud.mail.ru',
+        url:'https://webdav.cloud.mail.ru:443'
         auth: BasicAuth(
           user: _login,
           pwd: _appPassword,
