@@ -27,6 +27,10 @@ jobs:
       - name: Generate Android folder
         run: flutter create .
 
+      - name: Add INTERNET permission
+        run: |
+          sed -i 's|<manifest xmlns:android="http://schemas.android.com/apk/res/android">|<manifest xmlns:android="http://schemas.android.com/apk/res/android">\n    <uses-permission android:name="android.permission.INTERNET" />|' android/app/src/main/AndroidManifest.xml
+
       - name: Get dependencies
         run: flutter pub get
 
@@ -45,3 +49,5 @@ jobs:
           name: mic-mak-apk
           path: build/app/outputs/flutter-apk/app-release.apk
 
+
+          
