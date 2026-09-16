@@ -19,7 +19,7 @@ class _UploadScreenState extends State<UploadScreen> {
 
   // ⚠️ ЗАМЕНИ НА СВОИ ДАННЫЕ
   final String _login = 'ali.ayder@mail.ru';
-  final String _appPassword = '6CCcaHyBI0bge32ruPbh';
+  final String _appPassword = '6CCcaHyBI0bge32ruPbh ';
 
   Future<void> _pickVideo() async {
     final picker = ImagePicker();
@@ -59,11 +59,13 @@ class _UploadScreenState extends State<UploadScreen> {
 
       setState(() => _status = 'Загрузка в Облако Mail.ru...');
 
-      // 2. Подключаемся к WebDAV
-      final client = WebdavClient.basic(
-        'https://webdav.cloud.mail.ru',
-        _login,
-        _appPassword,
+      // 2. Подключаемся к WebDAV (синтаксис для версии 1.0.2)
+      final client = WebdavClient(
+        url: 'https://webdav.cloud.mail.ru',
+        auth: BasicAuth(
+          user: _login,
+          pwd: _appPassword,
+        ),
       );
 
       // 3. Путь на облаке
