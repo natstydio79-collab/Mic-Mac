@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'upload_screen.dart';
 
 void main() {
   runApp(const MyApp());
@@ -46,6 +47,19 @@ class FeedScreen extends StatelessWidget {
                     _iconWithLabel(Icons.comment, '345'),
                     const SizedBox(height: 20),
                     _iconWithLabel(Icons.share, 'Share'),
+                    const SizedBox(height: 20),
+                    _iconWithLabel(
+                      Icons.add_box,
+                      'Загрузить',
+                      onTap: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => const UploadScreen(),
+                          ),
+                        );
+                      },
+                    ),
                   ],
                 ),
               ),
@@ -76,12 +90,15 @@ class FeedScreen extends StatelessWidget {
     );
   }
 
-  Widget _iconWithLabel(IconData icon, String label) {
-    return Column(
-      children: [
-        Icon(icon, color: Colors.white, size: 40),
-        Text(label, style: const TextStyle(color: Colors.white)),
-      ],
+  Widget _iconWithLabel(IconData icon, String label, {VoidCallback? onTap}) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Column(
+        children: [
+          Icon(icon, color: Colors.white, size: 40),
+          Text(label, style: const TextStyle(color: Colors.white)),
+        ],
+      ),
     );
   }
 }
