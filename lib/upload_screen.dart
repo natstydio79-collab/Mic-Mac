@@ -64,14 +64,17 @@ class _UploadScreenState extends State<UploadScreen> {
       final filePath = 'uploads/$fileName';
       final file = File(mediaInfo.path!);
 
+      // Загружаем в публичный бакет Mic Mak
       await Supabase.instance.client.storage
-          .from('videos')
+          .from('Mic Mak')
           .upload(filePath, file);
 
+      // Получаем публичную ссылку
       final publicUrl = Supabase.instance.client.storage
-          .from('videos')
+          .from('Mic Mak')
           .getPublicUrl(filePath);
 
+      // Сохраняем ссылку в базу данных
       await Supabase.instance.client.from('videos').insert({
         'url': publicUrl,
         'created_at': DateTime.now().toIso8601String(),
