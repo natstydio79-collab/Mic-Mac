@@ -2,7 +2,7 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:video_compress/video_compress.dart';
-import 'package:webdav_client_plus/webdav_client_plus.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 class UploadScreen extends StatefulWidget {
   const UploadScreen({super.key});
@@ -17,11 +17,9 @@ class _UploadScreenState extends State<UploadScreen> {
   double _progress = 0;
   bool _isUploading = false;
 
-  // ⚠️ ЗАМЕНИ НА СВОИ ДАННЫЕ
-  final String _login = 'ali.ayder@mail.ru';
-  final String _appPassword = 'lkVyxPEoHkBfWv3WrP5q';
-
   Future<void> _pickVideo() async {
+    if (_isUploading) return;
+
     final picker = ImagePicker();
     final XFile? picked = await picker.pickVideo(source: ImageSource.gallery);
 
@@ -35,6 +33,8 @@ class _UploadScreenState extends State<UploadScreen> {
   }
 
   Future<void> _uploadVideo() async {
+    if (_isUploading) return;
+
     if (_videoFile == null) {
       setState(() => _status = 'Сначала выбери видео');
       return;
@@ -46,7 +46,8 @@ class _UploadScreenState extends State<UploadScreen> {
     });
 
     try {
-      // 1. Конвертируем в MP4
+      await VideoCompress.cancelCompression();
+
       final MediaInfo? mediaInfo = await VideoCompress.compressVideo(
         _videoFile!.path,
         quality: VideoQuality.DefaultQuality,
@@ -57,34 +58,27 @@ class _UploadScreenState extends State<UploadScreen> {
         throw Exception('Не удалось конвертировать видео');
       }
 
-      setState(() => _status = 'Загрузка в Облако Mail.ru...');
+      setState(() => _status = 'Загрузка в Supabase...');
 
-      // 2. Подключаемся к WebDAV (синтаксис для версии 1.0.2)
-      final client = WebdavClient(
-        url: 'https://webdav.cloud.mail.ru:443',
-        auth: BasicAuth(
-          user: _login,
-          pwd: _appPassword,
-        ),
-      );
+      final fileName = '${DateTime.now().millisecondsSinceEpoch}.mp4';
+      final filePath = 'uploads/$fileName';
+      final file = File(mediaInfo.path!);
 
-      // 3. Путь на облаке
-      final cloudPath = '/videos/${DateTime.now().millisecondsSinceEpoch}.mp4';
+      await Supabase.instance.client.storage
+          .from('videos')
+          .upload(filePath, file);
 
-      // 4. Загружаем с прогрессом
-      await client.writeFile(
-        mediaInfo.path!,
-        cloudPath,
-        onProgress: (count, total) {
-          setState(() {
-            _progress = count / total;
-            _status = 'Загрузка: ${(_progress * 100).toStringAsFixed(0)}%';
-          });
-        },
-      );
+      final publicUrl = Supabase.instance.client.storage
+          .from('videos')
+          .getPublicUrl(filePath);
+
+      await Supabase.instance.client.from('videos').insert({
+        'url': publicUrl,
+        'created_at': DateTime.now().toIso8601String(),
+      });
 
       setState(() {
-        _status = 'Готово! Файл: $cloudPath';
+        _status = 'Готово! Ссылка: $publicUrl';
         _isUploading = false;
       });
     } catch (e) {
@@ -111,16 +105,13 @@ class _UploadScreenState extends State<UploadScreen> {
           children: [
             Text(
               _status,
-              style: const TextStyle(color: Colors.white, fontSize: 16),
+              style: const TextStyle(color: Colors.white, fontSize: 14),
               textAlign: TextAlign.center,
             ),
             const SizedBox(height: 30),
-
             if (_isUploading)
               LinearProgressIndicator(value: _progress, color: Colors.pink),
-
             const SizedBox(height: 30),
-
             ElevatedButton.icon(
               onPressed: _isUploading ? null : _pickVideo,
               icon: const Icon(Icons.video_library),
@@ -132,7 +123,6 @@ class _UploadScreenState extends State<UploadScreen> {
               ),
             ),
             const SizedBox(height: 16),
-
             ElevatedButton.icon(
               onPressed: _isUploading ? null : _uploadVideo,
               icon: const Icon(Icons.cloud_upload),
